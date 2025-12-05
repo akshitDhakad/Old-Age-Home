@@ -11,6 +11,14 @@ export interface LoginCredentials {
   password: string;
 }
 
+export interface RegisterCredentials {
+  name: string;
+  email: string;
+  password: string;
+  phone?: string;
+  role?: 'customer' | 'caregiver';
+}
+
 export interface LoginResponse {
   token: string;
   user: User;
@@ -21,17 +29,32 @@ export interface AuthResponse {
 }
 
 /**
+ * Register a new user
+ * NOTE: In production, backend should set httpOnly cookie instead of returning token
+ */
+export async function register(credentials: RegisterCredentials): Promise<LoginResponse> {
+  const response = await apiPost<LoginResponse>('/auth/register', credentials);
+
+  // Store token temporarily (replace with httpOnly cookie in production)
+  if (response.token) {
+    localStorage.setItem('auth_token', response.token);
+  }
+
+  return response;
+}
+
+/**
  * Login user and store token
  * NOTE: In production, backend should set httpOnly cookie instead of returning token
  */
 export async function login(credentials: LoginCredentials): Promise<LoginResponse> {
   const response = await apiPost<LoginResponse>('/auth/login', credentials);
-  
+
   // Store token temporarily (replace with httpOnly cookie in production)
   if (response.token) {
     localStorage.setItem('auth_token', response.token);
   }
-  
+
   return response;
 }
 

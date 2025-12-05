@@ -1,9 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  content: [
-    "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}",
-  ],
+  content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     extend: {
       colors: {
@@ -52,9 +49,13 @@ export default {
         'fade-in': 'fadeIn 0.8s ease-in-out',
         'slide-up': 'slideUp 0.6s ease-out',
         'slide-in': 'slideIn 0.8s ease-out',
-        'float': 'float 6s ease-in-out infinite',
-        'blob': 'blob 7s infinite',
+        float: 'float 6s ease-in-out infinite',
+        blob: 'blob 7s infinite',
         'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        slide: 'slide 8s ease-in-out infinite',
+        rotate: 'rotate 20s linear infinite',
+        'bounce-slow': 'bounce 3s ease-in-out infinite',
+        move: 'move 10s ease-in-out infinite',
       },
       keyframes: {
         fadeIn: {
@@ -81,12 +82,11 @@ export default {
         },
       },
       spacing: {
-        '18': '4.5rem',
-        '88': '22rem',
-        '128': '32rem',
+        18: '4.5rem',
+        88: '22rem',
+        128: '32rem',
       },
     },
   },
   plugins: [],
-}
-
+};

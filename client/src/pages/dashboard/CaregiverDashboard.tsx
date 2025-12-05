@@ -8,7 +8,7 @@ import { Link } from 'react-router-dom';
 import { getMyCaregiverProfile } from '../../services/caregivers';
 import { getBookings } from '../../services/bookings';
 import { useAuth } from '../../features/auth/useAuth';
-import { Card, Button, Spinner } from '../../components';
+import { Card, Button, Spinner, DecorativeDoodles } from '../../components';
 import { VerificationStatus } from '../../features/onboarding/steps/VerificationStatus';
 
 export function CaregiverDashboard() {
@@ -43,7 +43,8 @@ export function CaregiverDashboard() {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 relative overflow-hidden">
+      <DecorativeDoodles variant="light" density="low" />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">

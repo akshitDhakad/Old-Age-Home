@@ -79,6 +79,12 @@ export function LandingPage() {
                 How It Works
               </a>
               <a
+                href="#pricing"
+                className="px-3 py-2 text-sm text-gray-700 hover:text-primary-600 font-medium transition-colors rounded-lg hover:bg-primary-50/50"
+              >
+                Pricing
+              </a>
+              <a
                 href="#testimonials"
                 className="px-3 py-2 text-sm text-gray-700 hover:text-primary-600 font-medium transition-colors rounded-lg hover:bg-primary-50/50"
               >
@@ -154,7 +160,7 @@ export function LandingPage() {
           {/* Mobile Menu */}
           <div
             className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out ${
-              mobileMenuOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+              mobileMenuOpen ? 'max-h-[28rem] opacity-100' : 'max-h-0 opacity-0'
             }`}
           >
             <nav className="py-4 space-y-2 border-t border-gray-200/50 mt-2">
@@ -171,6 +177,13 @@ export function LandingPage() {
                 className="block px-4 py-2 text-sm text-gray-700 hover:text-primary-600 font-medium transition-colors rounded-lg hover:bg-primary-50/50"
               >
                 How It Works
+              </a>
+              <a
+                href="#pricing"
+                onClick={() => setMobileMenuOpen(false)}
+                className="block px-4 py-2 text-sm text-gray-700 hover:text-primary-600 font-medium transition-colors rounded-lg hover:bg-primary-50/50"
+              >
+                Pricing
               </a>
               <a
                 href="#testimonials"
@@ -212,15 +225,33 @@ export function LandingPage() {
 
       {/* Hero Section - Completely Redesigned */}
       <section className="relative pt-32 pb-16 lg:pt-40 lg:pb-20 px-6 overflow-hidden">
-        {/* Background */}
+        {/* Background with Enhanced Gradient */}
         <div className="absolute inset-0 bg-gradient-to-br from-primary-50 via-white to-accent-50 -z-10" />
 
-        {/* Background Pattern */}
+        {/* Clean Repeated Pattern - Minimal Dots Grid */}
         <div
-          className="absolute inset-0 opacity-[0.03] -z-10"
+          className="absolute inset-0 opacity-[0.15] -z-10"
           style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23059669' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-            backgroundSize: '60px 60px',
+            backgroundImage: `url("data:image/svg+xml,%3Csvg width='30' height='30' viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='15' cy='15' r='2' fill='%23059669'/%3E%3C/svg%3E")`,
+            backgroundSize: '30px 30px',
+          }}
+        />
+
+        {/* Clean Repeated Pattern - Diagonal Lines */}
+        <div
+          className="absolute inset-0 opacity-[0.08] -z-10"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 40L40 0M-10 10L10 -10M30 50L50 30' stroke='%23059669' stroke-width='1' stroke-linecap='square'/%3E%3C/svg%3E")`,
+            backgroundSize: '40px 40px',
+          }}
+        />
+
+        {/* Clean Repeated Pattern - Small Squares */}
+        <div
+          className="absolute inset-0 opacity-[0.1] -z-10"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg width='50' height='50' viewBox='0 0 50 50' xmlns='http://www.w3.org/2000/svg'%3E%3Crect x='20' y='20' width='10' height='10' fill='none' stroke='%23059669' stroke-width='1'/%3E%3C/svg%3E")`,
+            backgroundSize: '50px 50px',
           }}
         />
 
@@ -230,7 +261,7 @@ export function LandingPage() {
           <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-accent-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000" />
         </div>
 
-        {/* Floating Doodle */}
+        {/* Moving Doodle 1 - Top Right (Floating) */}
         <div className="absolute top-20 right-10 lg:right-20 w-24 h-24 lg:w-32 lg:h-32 -z-10 animate-float">
           <svg
             viewBox="0 0 100 100"
@@ -246,6 +277,104 @@ export function LandingPage() {
             <circle cx="35" cy="45" r="3" fill="currentColor" />
             <circle cx="65" cy="55" r="3" fill="currentColor" />
             <path d="M40,60 Q50,65 60,60" strokeWidth="1.5" />
+          </svg>
+        </div>
+
+        {/* Moving Doodle 2 - Bottom Left (Sliding) */}
+        <div className="absolute bottom-20 left-10 lg:left-20 w-20 h-20 lg:w-28 lg:h-28 -z-10 animate-slide">
+          <svg
+            viewBox="0 0 100 100"
+            className="w-full h-full text-accent-300/30"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+          >
+            <path d="M30,30 Q50,10 70,30 Q50,50 30,70 Q10,50 30,30" />
+            <circle cx="50" cy="50" r="4" fill="currentColor" />
+            <path d="M20,50 L80,50" strokeWidth="1.5" />
+            <path d="M50,20 L50,80" strokeWidth="1.5" />
+          </svg>
+        </div>
+
+        {/* Moving Doodle 3 - Top Left (Rotating) */}
+        <div className="absolute top-40 left-10 lg:left-20 w-16 h-16 lg:w-24 lg:h-24 -z-10 animate-rotate">
+          <svg
+            viewBox="0 0 100 100"
+            className="w-full h-full text-primary-400/25"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+          >
+            <circle cx="50" cy="50" r="30" />
+            <path
+              d="M50,20 L50,50 L70,70"
+              strokeWidth="2"
+              strokeLinecap="round"
+            />
+            <circle cx="50" cy="50" r="3" fill="currentColor" />
+          </svg>
+        </div>
+
+        {/* Moving Doodle 4 - Center Right (Bouncing) */}
+        <div className="absolute top-1/2 right-32 lg:right-40 w-18 h-18 lg:w-24 lg:h-24 -z-10 animate-bounce-slow">
+          <svg
+            viewBox="0 0 100 100"
+            className="w-full h-full text-accent-400/30"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+          >
+            <path d="M50,20 L30,60 L50,50 L70,60 Z" />
+            <circle cx="50" cy="35" r="3" fill="currentColor" />
+            <path d="M40,45 Q50,50 60,45" strokeWidth="1.5" />
+          </svg>
+        </div>
+
+        {/* Plan/Rounded Line Doodle - Bottom Right */}
+        <div className="absolute bottom-32 right-32 lg:right-48 w-32 h-32 lg:w-40 lg:h-40 -z-10 animate-move">
+          <svg
+            viewBox="0 0 100 100"
+            className="w-full h-full text-primary-300/35"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            {/* Rounded line plan/diagram */}
+            <path
+              d="M20,20 Q30,10 40,20 T60,20 T80,20"
+              className="animate-pulse-slow"
+            />
+            <path
+              d="M20,40 Q30,30 40,40 T60,40 T80,40"
+              className="animate-pulse-slow"
+              style={{ animationDelay: '0.5s' }}
+            />
+            <path
+              d="M20,60 Q30,50 40,60 T60,60 T80,60"
+              className="animate-pulse-slow"
+              style={{ animationDelay: '1s' }}
+            />
+            <path
+              d="M20,80 Q30,70 40,80 T60,80 T80,80"
+              className="animate-pulse-slow"
+              style={{ animationDelay: '1.5s' }}
+            />
+            {/* Connecting vertical rounded lines */}
+            <path d="M20,20 Q15,30 20,40" strokeWidth="1.5" />
+            <path d="M40,20 Q35,30 40,40" strokeWidth="1.5" />
+            <path d="M60,20 Q55,30 60,40" strokeWidth="1.5" />
+            <path d="M80,20 Q75,30 80,40" strokeWidth="1.5" />
+            {/* Dots at intersections */}
+            <circle cx="20" cy="20" r="2" fill="currentColor" />
+            <circle cx="40" cy="20" r="2" fill="currentColor" />
+            <circle cx="60" cy="20" r="2" fill="currentColor" />
+            <circle cx="80" cy="20" r="2" fill="currentColor" />
+            <circle cx="20" cy="40" r="2" fill="currentColor" />
+            <circle cx="40" cy="40" r="2" fill="currentColor" />
+            <circle cx="60" cy="40" r="2" fill="currentColor" />
+            <circle cx="80" cy="40" r="2" fill="currentColor" />
           </svg>
         </div>
 
@@ -941,6 +1070,262 @@ export function LandingPage() {
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Pricing Section */}
+      <section
+        id="pricing"
+        className="py-20 lg:py-24 px-6 bg-white relative overflow-hidden"
+      >
+        {/* Decorative Doodle */}
+        <div className="absolute bottom-10 right-10 lg:right-20 w-20 h-20 lg:w-28 lg:h-28 opacity-15 animate-float">
+          <svg
+            viewBox="0 0 100 100"
+            className="w-full h-full text-primary-400"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+          >
+            <path d="M30,30 Q50,10 70,30 Q50,50 30,70 Q10,50 30,30" />
+            <circle cx="50" cy="50" r="4" fill="currentColor" />
+          </svg>
+        </div>
+
+        <div className="max-w-7xl mx-auto relative z-10">
+          {/* Section Header */}
+          <div className="text-center mb-14">
+            <div className="inline-block mb-3">
+              <span className="inline-flex items-center px-3 py-1.5 bg-primary-100 text-primary-700 rounded-full font-semibold text-xs">
+                Flexible Pricing
+              </span>
+            </div>
+            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
+              Choose Your Perfect Plan
+            </h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              Transparent pricing with no hidden fees. Select the plan that works best for you.
+            </p>
+          </div>
+
+          {/* Pricing Cards */}
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
+            {/* One-Time Plan */}
+            <div className="bg-white rounded-2xl p-8 border-2 border-gray-200 hover:border-primary-300 hover:shadow-xl transition-all duration-300">
+              <div className="text-center mb-6">
+                <h3 className="text-xl font-bold text-gray-900 mb-2">One-Time</h3>
+                <p className="text-sm text-gray-600">Pay as you go</p>
+              </div>
+
+              <div className="text-center mb-6">
+                <div className="flex items-start justify-center gap-1">
+                  <span className="text-2xl font-bold text-gray-900 mt-1">$</span>
+                  <span className="text-5xl font-bold text-gray-900">25</span>
+                </div>
+                <p className="text-sm text-gray-600 mt-2">per hour</p>
+              </div>
+
+              <ul className="space-y-3 mb-8">
+                <li className="flex items-start gap-2">
+                  <svg className="w-5 h-5 text-primary-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  <span className="text-sm text-gray-600">No commitment</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <svg className="w-5 h-5 text-primary-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  <span className="text-sm text-gray-600">Verified caregivers</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <svg className="w-5 h-5 text-primary-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  <span className="text-sm text-gray-600">Basic support</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <svg className="w-5 h-5 text-primary-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  <span className="text-sm text-gray-600">Flexible scheduling</span>
+                </li>
+              </ul>
+
+              <Button fullWidth variant="outline" className="border-2 border-gray-300 hover:border-primary-600 hover:bg-primary-50">
+                Get Started
+              </Button>
+            </div>
+
+            {/* Monthly Plan */}
+            <div className="bg-white rounded-2xl p-8 border-2 border-primary-500 hover:shadow-xl transition-all duration-300 relative">
+              <div className="absolute -top-4 left-1/2 -translate-x-1/2">
+                <span className="bg-primary-500 text-white text-xs font-bold px-3 py-1 rounded-full">
+                  POPULAR
+                </span>
+              </div>
+
+              <div className="text-center mb-6">
+                <h3 className="text-xl font-bold text-gray-900 mb-2">Monthly</h3>
+                <p className="text-sm text-gray-600">Best for regular care</p>
+              </div>
+
+              <div className="text-center mb-6">
+                <div className="flex items-start justify-center gap-1">
+                  <span className="text-2xl font-bold text-primary-600 mt-1">$</span>
+                  <span className="text-5xl font-bold text-primary-600">399</span>
+                </div>
+                <p className="text-sm text-gray-600 mt-2">per month</p>
+                <p className="text-xs text-primary-600 font-semibold mt-1">Save 20%</p>
+              </div>
+
+              <ul className="space-y-3 mb-8">
+                <li className="flex items-start gap-2">
+                  <svg className="w-5 h-5 text-primary-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  <span className="text-sm text-gray-600">20 hours included</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <svg className="w-5 h-5 text-primary-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  <span className="text-sm text-gray-600">Priority booking</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <svg className="w-5 h-5 text-primary-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  <span className="text-sm text-gray-600">24/7 support</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <svg className="w-5 h-5 text-primary-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  <span className="text-sm text-gray-600">Dedicated coordinator</span>
+                </li>
+              </ul>
+
+              <Button fullWidth className="bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800">
+                Get Started
+              </Button>
+            </div>
+
+            {/* 6-Month Plan */}
+            <div className="bg-white rounded-2xl p-8 border-2 border-gray-200 hover:border-primary-300 hover:shadow-xl transition-all duration-300">
+              <div className="text-center mb-6">
+                <h3 className="text-xl font-bold text-gray-900 mb-2">6 Months</h3>
+                <p className="text-sm text-gray-600">Better savings</p>
+              </div>
+
+              <div className="text-center mb-6">
+                <div className="flex items-start justify-center gap-1">
+                  <span className="text-2xl font-bold text-gray-900 mt-1">$</span>
+                  <span className="text-5xl font-bold text-gray-900">339</span>
+                </div>
+                <p className="text-sm text-gray-600 mt-2">per month</p>
+                <p className="text-xs text-accent-600 font-semibold mt-1">Save 30%</p>
+              </div>
+
+              <ul className="space-y-3 mb-8">
+                <li className="flex items-start gap-2">
+                  <svg className="w-5 h-5 text-primary-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  <span className="text-sm text-gray-600">25 hours/month</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <svg className="w-5 h-5 text-primary-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  <span className="text-sm text-gray-600">All Monthly features</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <svg className="w-5 h-5 text-primary-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  <span className="text-sm text-gray-600">Free equipment rental</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <svg className="w-5 h-5 text-primary-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  <span className="text-sm text-gray-600">Monthly health reports</span>
+                </li>
+              </ul>
+
+              <Button fullWidth variant="outline" className="border-2 border-gray-300 hover:border-primary-600 hover:bg-primary-50">
+                Get Started
+              </Button>
+            </div>
+
+            {/* Yearly Plan */}
+            <div className="bg-gradient-to-br from-accent-600 to-accent-700 rounded-2xl p-8 border-2 border-accent-500 hover:shadow-xl transition-all duration-300 text-white relative">
+              <div className="absolute -top-4 left-1/2 -translate-x-1/2">
+                <span className="bg-secondary-400 text-accent-900 text-xs font-bold px-3 py-1 rounded-full">
+                  BEST VALUE
+                </span>
+              </div>
+
+              <div className="text-center mb-6">
+                <h3 className="text-xl font-bold mb-2">Yearly</h3>
+                <p className="text-sm text-accent-100">Maximum savings</p>
+              </div>
+
+              <div className="text-center mb-6">
+                <div className="flex items-start justify-center gap-1">
+                  <span className="text-2xl font-bold mt-1">$</span>
+                  <span className="text-5xl font-bold">279</span>
+                </div>
+                <p className="text-sm text-accent-100 mt-2">per month</p>
+                <p className="text-xs text-secondary-300 font-semibold mt-1">Save 45%</p>
+              </div>
+
+              <ul className="space-y-3 mb-8">
+                <li className="flex items-start gap-2">
+                  <svg className="w-5 h-5 text-secondary-300 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  <span className="text-sm text-accent-50">30 hours/month</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <svg className="w-5 h-5 text-secondary-300 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  <span className="text-sm text-accent-50">All 6-month features</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <svg className="w-5 h-5 text-secondary-300 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  <span className="text-sm text-accent-50">Free telehealth</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <svg className="w-5 h-5 text-secondary-300 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  <span className="text-sm text-accent-50">Premium support</span>
+                </li>
+              </ul>
+
+              <Button fullWidth className="bg-white text-accent-700 hover:bg-accent-50 font-semibold">
+                Get Started
+              </Button>
+            </div>
+          </div>
+
+          {/* Additional Info */}
+          <div className="mt-12 text-center">
+            <p className="text-sm text-gray-600">
+              All plans include verified caregivers, secure platform, and flexible scheduling.
+            </p>
+            <p className="text-sm text-gray-600 mt-2">
+              Need a custom plan?{' '}
+              <a href="#" className="text-primary-600 font-semibold hover:underline">
+                Contact our team
+              </a>
+            </p>
           </div>
         </div>
       </section>

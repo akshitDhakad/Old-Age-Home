@@ -11,6 +11,7 @@ import { CustomerDashboard } from '../pages/dashboard/CustomerDashboard';
 import { CaregiverDashboard } from '../pages/dashboard/CaregiverDashboard';
 import { AdminPanel } from '../pages/dashboard/AdminPanel';
 import { LoginPage } from '../pages/LoginPage';
+import { RegisterPage } from '../pages/RegisterPage';
 import CaregiverOnboardWizard from '../features/onboarding/CaregiverOnboardWizard';
 import type { Role } from '../types';
 
@@ -48,44 +49,52 @@ export function AppRouter() {
         {/* Public Routes */}
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
 
         {/* Protected Customer Routes */}
-        <Route
+        {/* <Route
           path="/customer/dashboard"
           element={
             <ProtectedRoute allowedRoles={['customer']}>
               <CustomerDashboard />
             </ProtectedRoute>
           }
-        />
+        /> */}
+        <Route path="/customer/dashboard" element={<CustomerDashboard />} />
 
         {/* Protected Caregiver Routes */}
-        <Route
+        <Route path="/caregiver/dashboard" element={<CaregiverDashboard />} />
+        {/* <Route
           path="/caregiver/dashboard"
           element={
             <ProtectedRoute allowedRoles={['caregiver']}>
               <CaregiverDashboard />
             </ProtectedRoute>
           }
-        />
+        /> */}
         <Route
+          path="/caregiver/onboarding"
+          element={<CaregiverOnboardWizard />}
+        />
+        {/* <Route
           path="/caregiver/onboarding"
           element={
             <ProtectedRoute allowedRoles={['caregiver']}>
               <CaregiverOnboardWizard />
             </ProtectedRoute>
           }
-        />
+        /> */}
 
         {/* Protected Admin Routes */}
-        <Route
+        <Route path="/admin" element={<AdminPanel />} />
+        {/* <Route
           path="/admin"
           element={
             <ProtectedRoute allowedRoles={['admin']}>
               <AdminPanel />
             </ProtectedRoute>
           }
-        />
+        /> */}
 
         {/* Fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />
@@ -93,4 +102,3 @@ export function AppRouter() {
     </BrowserRouter>
   );
 }
-

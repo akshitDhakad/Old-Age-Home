@@ -4,9 +4,15 @@
  */
 
 import { http, HttpResponse } from 'msw';
-import type { User, CaregiverProfile, Booking, Subscription, AdminReport } from '../types';
+import type {
+  User,
+  CaregiverProfile,
+  Booking,
+  Subscription,
+  AdminReport,
+} from '../types';
 
-const BASE_URL = import.meta.env.VITE_API_BASE || 'http://localhost:4000';
+const BASE_URL = import.meta.env.VITE_API_BASE || 'http://localhost:3000';
 
 // Mock data storage
 let mockUsers: User[] = [
@@ -50,7 +56,7 @@ let mockCaregivers: CaregiverProfile[] = [
     verificationStatus: 'verified',
     documents: [],
     rating: 4.8,
-    hourlyRate: 2500, // $25.00
+    hourlyRate: 2500,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
@@ -62,7 +68,7 @@ let mockSubscriptions: Subscription[] = [];
 export const handlers = [
   // Auth endpoints
   http.post(`${BASE_URL}/auth/login`, async ({ request }) => {
-    const body = await request.json() as { email: string; password: string };
+    const body = (await request.json()) as { email: string; password: string };
     const user = mockUsers.find((u) => u.email === body.email);
 
     if (!user || body.password !== 'password') {
@@ -148,14 +154,17 @@ export const handlers = [
     const caregiver = mockCaregivers.find((c) => c.userId === userId);
 
     if (!caregiver) {
-      return HttpResponse.json({ message: 'Profile not found' }, { status: 404 });
+      return HttpResponse.json(
+        { message: 'Profile not found' },
+        { status: 404 }
+      );
     }
 
     return HttpResponse.json(caregiver);
   }),
 
   http.post(`${BASE_URL}/caregivers`, async ({ request }) => {
-    const body = await request.json() as Partial<CaregiverProfile>;
+    const body = (await request.json()) as Partial<CaregiverProfile>;
     const authHeader = request.headers.get('Authorization');
     if (!authHeader) {
       return HttpResponse.json({ message: 'Unauthorized' }, { status: 401 });
@@ -214,7 +223,7 @@ export const handlers = [
   }),
 
   http.post(`${BASE_URL}/bookings`, async ({ request }) => {
-    const body = await request.json() as Partial<Booking>;
+    const body = (await request.json()) as Partial<Booking>;
     const authHeader = request.headers.get('Authorization');
     if (!authHeader) {
       return HttpResponse.json({ message: 'Unauthorized' }, { status: 401 });
@@ -256,7 +265,7 @@ export const handlers = [
 
   // Verification endpoints
   http.post(`${BASE_URL}/verification/request`, async ({ request }) => {
-    const body = await request.json() as { userId: string; type: string };
+    const body = (await request.json()) as { userId: string; type: string };
     return HttpResponse.json({
       id: 'v1',
       userId: body.userId,
@@ -310,4 +319,3 @@ export const handlers = [
     });
   }),
 ];
-

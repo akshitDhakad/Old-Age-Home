@@ -4,8 +4,12 @@
  */
 
 import { useQuery } from '@tanstack/react-query';
-import { getAdminReports, getPendingVerifications, getUsers } from '../../services/admin';
-import { Card, Spinner, Button } from '../../components';
+import {
+  getAdminReports,
+  getPendingVerifications,
+  getUsers,
+} from '../../services/admin';
+import { Card, Spinner, Button, DecorativeDoodles } from '../../components';
 import { useAuth } from '../../features/auth/useAuth';
 
 export function AdminPanel() {
@@ -38,7 +42,8 @@ export function AdminPanel() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 relative overflow-hidden">
+      <DecorativeDoodles variant="light" density="low" />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Admin Panel</h1>
@@ -150,7 +155,9 @@ export function AdminPanel() {
                         <p className="font-semibold text-gray-900">
                           {userItem.name}
                         </p>
-                        <p className="text-sm text-gray-600">{userItem.email}</p>
+                        <p className="text-sm text-gray-600">
+                          {userItem.email}
+                        </p>
                         <span className="inline-block mt-1 px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded">
                           {userItem.role}
                         </span>
@@ -171,4 +178,3 @@ export function AdminPanel() {
     </div>
   );
 }
-
