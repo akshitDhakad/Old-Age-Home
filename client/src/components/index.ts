@@ -27,6 +27,10 @@ export { Sidebar } from './Sidebar';
 export { DashboardLayout } from './DashboardLayout';
 export { EmergencyRequest } from './EmergencyRequest';
 export { ProfileSection } from './ProfileSection';
+export { ProfileModal } from './ProfileModal';
 export { QuickActions } from './QuickActions';
 export { UpcomingSchedule } from './UpcomingSchedule';
+export { ScheduleAppointmentModal } from './ScheduleAppointmentModal';
+export { HealthRecordsSection } from './HealthRecordsSection';
+export { AllBookingsSection } from './AllBookingsSection';
 

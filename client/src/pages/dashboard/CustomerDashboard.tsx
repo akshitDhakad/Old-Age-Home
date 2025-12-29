@@ -9,7 +9,6 @@ import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { getCaregivers } from '../../services/caregivers';
 import { useBookings } from '../../hooks/useBookings';
-import { useLatestVitals, useHealthTrends } from '../../hooks/useHealth';
 import { useDebounce } from '../../hooks/useDebounce';
 import { useAuth } from '../../features/auth/useAuth';
 import {
@@ -20,11 +19,14 @@ import {
   Spinner,
   DashboardLayout,
   ProfileSection,
+  ProfileModal,
   QuickActions,
   UpcomingSchedule,
+  ScheduleAppointmentModal,
   EmergencyRequest,
+  HealthRecordsSection,
+  AllBookingsSection,
 } from '../../components';
-import { HealthGraph } from '../../components/HealthGraph';
 import {
   formatTime,
   formatDateTime,
@@ -40,9 +42,11 @@ export function CustomerDashboard() {
   const [searchCity, setSearchCity] = useState('');
   const [searchService, setSearchService] = useState('');
   const [activeTab, setActiveTab] = useState<
-    'overview' | 'health' | 'caregivers' | 'schedule'
+    'overview' | 'health' | 'caregivers' | 'schedule' | 'bookings'
   >('overview');
   const [isEmergencyModalOpen, setIsEmergencyModalOpen] = useState(false);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
   const debouncedCity = useDebounce(searchCity, 500);
 
   // Fetch bookings
@@ -63,13 +67,6 @@ export function CustomerDashboard() {
       }),
     enabled: activeTab === 'caregivers',
   });
-
-  // Fetch health vitals
-  const { data: vitals, isLoading: vitalsLoading } = useLatestVitals();
-  const { data: bpTrend } = useHealthTrends('blood_pressure', 7);
-  const { data: hrTrend } = useHealthTrends('heart_rate', 7);
-  const { data: bsTrend } = useHealthTrends('blood_sugar', 7);
-  const { data: tempTrend } = useHealthTrends('temperature', 7);
 
   // Calculate real metrics from bookings
   const metrics = useMemo(() => {
@@ -177,6 +174,27 @@ export function CustomerDashboard() {
       active: activeTab === 'overview',
     },
     {
+      id: 'profile',
+      label: 'My Profile',
+      icon: (
+        <svg
+          className="w-5 h-5"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+          />
+        </svg>
+      ),
+      onClick: () => setIsProfileModalOpen(true),
+      active: false,
+    },
+    {
       id: 'health',
       label: 'Health Monitoring',
       icon: (
@@ -238,6 +256,48 @@ export function CustomerDashboard() {
       ),
       onClick: () => setActiveTab('schedule'),
       active: activeTab === 'schedule',
+    },
+    {
+      id: 'bookings',
+      label: 'All Bookings',
+      icon: (
+        <svg
+          className="w-5 h-5"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+          />
+        </svg>
+      ),
+      onClick: () => setActiveTab('bookings'),
+      active: activeTab === 'bookings',
+    },
+    {
+      id: 'schedule-appointment',
+      label: 'Schedule Appointment',
+      icon: (
+        <svg
+          className="w-5 h-5"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M12 4v16m8-8H4"
+          />
+        </svg>
+      ),
+      onClick: () => setIsScheduleModalOpen(true),
+      active: false,
     },
     {
       id: 'emergency',
@@ -656,216 +716,7 @@ export function CustomerDashboard() {
         {/* Health Monitoring Tab */}
         {activeTab === 'health' && (
           <div className="space-y-6">
-            {/* Current Vitals */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {vitalsLoading ? (
-                <div className="col-span-4 flex justify-center p-8">
-                  <Spinner />
-                </div>
-              ) : (
-                <>
-                  {vitals?.find((v) => v.type === 'blood_pressure') && (
-                    <Card className="bg-gradient-to-br from-red-500 to-red-600 text-white border-none shadow-lg">
-                      <p className="text-red-100 text-sm">Blood Pressure</p>
-                      <p className="text-3xl font-bold mt-2">
-                        {vitals.find((v) => v.type === 'blood_pressure')
-                          ?.value || 'N/A'}
-                      </p>
-                      <p className="text-red-100 text-xs mt-1">
-                        {vitals.find((v) => v.type === 'blood_pressure')
-                          ?.unit || 'mmHg'}{' '}
-                        • Normal
-                      </p>
-                    </Card>
-                  )}
-                  {vitals?.find((v) => v.type === 'heart_rate') && (
-                    <Card className="bg-gradient-to-br from-pink-500 to-pink-600 text-white border-none shadow-lg">
-                      <p className="text-pink-100 text-sm">Heart Rate</p>
-                      <p className="text-3xl font-bold mt-2">
-                        {vitals.find((v) => v.type === 'heart_rate')?.value ||
-                          'N/A'}
-                      </p>
-                      <p className="text-pink-100 text-xs mt-1">
-                        {vitals.find((v) => v.type === 'heart_rate')?.unit ||
-                          'bpm'}{' '}
-                        • Healthy
-                      </p>
-                    </Card>
-                  )}
-                  {vitals?.find((v) => v.type === 'blood_sugar') && (
-                    <Card className="bg-gradient-to-br from-blue-500 to-blue-600 text-white border-none shadow-lg">
-                      <p className="text-blue-100 text-sm">Blood Sugar</p>
-                      <p className="text-3xl font-bold mt-2">
-                        {vitals.find((v) => v.type === 'blood_sugar')?.value ||
-                          'N/A'}
-                      </p>
-                      <p className="text-blue-100 text-xs mt-1">
-                        {vitals.find((v) => v.type === 'blood_sugar')?.unit ||
-                          'mg/dL'}{' '}
-                        • Normal
-                      </p>
-                    </Card>
-                  )}
-                  {vitals?.find((v) => v.type === 'temperature') && (
-                    <Card className="bg-gradient-to-br from-purple-500 to-purple-600 text-white border-none shadow-lg">
-                      <p className="text-purple-100 text-sm">Temperature</p>
-                      <p className="text-3xl font-bold mt-2">
-                        {vitals.find((v) => v.type === 'temperature')?.value ||
-                          'N/A'}
-                      </p>
-                      <p className="text-purple-100 text-xs mt-1">
-                        {vitals.find((v) => v.type === 'temperature')?.unit ||
-                          '°F'}{' '}
-                        • Normal Range
-                      </p>
-                    </Card>
-                  )}
-                </>
-              )}
-            </div>
-
-            {/* Health Trends Graphs */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Blood Pressure Trend */}
-              {bpTrend && (
-                <Card>
-                  <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-lg font-semibold text-gray-900">
-                      Blood Pressure Trend (7 Days)
-                    </h3>
-                    <span
-                      className={`text-sm font-medium ${
-                        bpTrend.trend === 'improving'
-                          ? 'text-green-600'
-                          : bpTrend.trend === 'declining'
-                            ? 'text-red-600'
-                            : 'text-blue-600'
-                      }`}
-                    >
-                      {bpTrend.trend === 'improving'
-                        ? '↓ Improving'
-                        : bpTrend.trend === 'declining'
-                          ? '↑ Declining'
-                          : '→ Stable'}
-                    </span>
-                  </div>
-                  <HealthGraph trend={bpTrend} color="red" height={200} />
-                  <div className="mt-4 text-center">
-                    <p className="text-sm text-gray-600">
-                      Average:{' '}
-                      <span className="font-semibold text-gray-900">
-                        {bpTrend.average} mmHg
-                      </span>
-                    </p>
-                  </div>
-                </Card>
-              )}
-
-              {/* Heart Rate Trend */}
-              {hrTrend && (
-                <Card>
-                  <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-lg font-semibold text-gray-900">
-                      Heart Rate Trend (7 Days)
-                    </h3>
-                    <span
-                      className={`text-sm font-medium ${
-                        hrTrend.trend === 'improving'
-                          ? 'text-green-600'
-                          : hrTrend.trend === 'declining'
-                            ? 'text-red-600'
-                            : 'text-blue-600'
-                      }`}
-                    >
-                      {hrTrend.trend === 'improving'
-                        ? '↓ Improving'
-                        : hrTrend.trend === 'declining'
-                          ? '↑ Declining'
-                          : '→ Stable'}
-                    </span>
-                  </div>
-                  <HealthGraph trend={hrTrend} color="blue" height={200} />
-                  <div className="mt-4 text-center">
-                    <p className="text-sm text-gray-600">
-                      Average:{' '}
-                      <span className="font-semibold text-gray-900">
-                        {hrTrend.average} bpm
-                      </span>
-                    </p>
-                  </div>
-                </Card>
-              )}
-
-              {/* Blood Sugar Trend */}
-              {bsTrend && (
-                <Card>
-                  <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-lg font-semibold text-gray-900">
-                      Blood Sugar Trend (7 Days)
-                    </h3>
-                    <span
-                      className={`text-sm font-medium ${
-                        bsTrend.trend === 'improving'
-                          ? 'text-green-600'
-                          : bsTrend.trend === 'declining'
-                            ? 'text-red-600'
-                            : 'text-blue-600'
-                      }`}
-                    >
-                      {bsTrend.trend === 'improving'
-                        ? '↓ Improving'
-                        : bsTrend.trend === 'declining'
-                          ? '↑ Declining'
-                          : '→ Stable'}
-                    </span>
-                  </div>
-                  <HealthGraph trend={bsTrend} color="green" height={200} />
-                  <div className="mt-4 text-center">
-                    <p className="text-sm text-gray-600">
-                      Average:{' '}
-                      <span className="font-semibold text-gray-900">
-                        {bsTrend.average} mg/dL
-                      </span>
-                    </p>
-                  </div>
-                </Card>
-              )}
-
-              {/* Temperature Trend */}
-              {tempTrend && (
-                <Card>
-                  <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-lg font-semibold text-gray-900">
-                      Temperature Trend (7 Days)
-                    </h3>
-                    <span
-                      className={`text-sm font-medium ${
-                        tempTrend.trend === 'improving'
-                          ? 'text-green-600'
-                          : tempTrend.trend === 'declining'
-                            ? 'text-red-600'
-                            : 'text-blue-600'
-                      }`}
-                    >
-                      {tempTrend.trend === 'improving'
-                        ? '↓ Improving'
-                        : tempTrend.trend === 'declining'
-                          ? '↑ Declining'
-                          : '→ Stable'}
-                    </span>
-                  </div>
-                  <HealthGraph trend={tempTrend} color="purple" height={200} />
-                  <div className="mt-4 text-center">
-                    <p className="text-sm text-gray-600">
-                      Average:{' '}
-                      <span className="font-semibold text-gray-900">
-                        {tempTrend.average}°F
-                      </span>
-                    </p>
-                  </div>
-                </Card>
-              )}
-            </div>
+            <HealthRecordsSection />
           </div>
         )}
 
@@ -994,15 +845,43 @@ export function CustomerDashboard() {
         {/* Care Schedule Tab */}
         {activeTab === 'schedule' && (
           <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">
+                  Care Schedule
+                </h2>
+                <p className="text-sm text-gray-600 mt-1">
+                  View and manage your upcoming appointments
+                </p>
+              </div>
+              <Button onClick={() => setIsScheduleModalOpen(true)}>
+                Schedule Appointment
+              </Button>
+            </div>
             <UpcomingSchedule />
+          </div>
+        )}
+
+        {/* All Bookings Tab */}
+        {activeTab === 'bookings' && (
+          <div className="space-y-6">
+            <AllBookingsSection />
           </div>
         )}
       </div>
 
-      {/* Emergency Request Modal */}
+      {/* Modals */}
       <EmergencyRequest
         isOpen={isEmergencyModalOpen}
         onClose={() => setIsEmergencyModalOpen(false)}
+      />
+      <ProfileModal
+        isOpen={isProfileModalOpen}
+        onClose={() => setIsProfileModalOpen(false)}
+      />
+      <ScheduleAppointmentModal
+        isOpen={isScheduleModalOpen}
+        onClose={() => setIsScheduleModalOpen(false)}
       />
     </DashboardLayout>
   );

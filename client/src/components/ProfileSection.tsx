@@ -37,7 +37,7 @@ export function ProfileSection() {
         <div className="flex items-start justify-between mb-4">
           <h3 className="text-lg font-semibold text-gray-900">Profile</h3>
           <Button size="sm" variant="outline" onClick={() => setIsEditOpen(true)}>
-            Edit
+            Quick Edit
           </Button>
         </div>
         <div className="space-y-4">
