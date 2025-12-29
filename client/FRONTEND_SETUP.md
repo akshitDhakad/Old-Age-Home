@@ -171,3 +171,4 @@ The frontend is ready to connect to the backend. Make sure:
 - Check API base URL in `.env`
 - Check network tab in browser DevTools
 
+

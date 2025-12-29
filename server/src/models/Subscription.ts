@@ -87,3 +87,4 @@ subscriptionSchema.index({ endDate: 1 });
 
 export const Subscription = mongoose.model<ISubscription>('Subscription', subscriptionSchema);
 
+

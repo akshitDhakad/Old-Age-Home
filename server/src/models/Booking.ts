@@ -83,3 +83,4 @@ bookingSchema.index({ createdAt: -1 });
 
 export const Booking = mongoose.model<IBooking>('Booking', bookingSchema);
 
+

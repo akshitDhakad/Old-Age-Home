@@ -470,76 +470,78 @@ export function CustomerDashboard() {
             </div>
 
             {/* Right Sidebar */}
-            <div className="lg:col-span-4 space-y-6">
-              {/* Profile Section */}
-              <ProfileSection />
+            <div className="lg:col-span-4">
+              <div className="lg:sticky lg:top-4 space-y-6">
+                {/* Profile Section */}
+                <ProfileSection />
 
-              {/* Quick Stats */}
-              <Card>
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                  Quick Stats
-                </h3>
-                <div className="space-y-4">
-                  <div>
-                    <div className="flex justify-between text-sm mb-1">
-                      <span className="text-gray-600">Total Bookings</span>
-                      <span className="font-semibold text-gray-900">
-                        {metrics.totalBookings}
-                      </span>
-                    </div>
-                  </div>
-                  <div>
-                    <div className="flex justify-between text-sm mb-1">
-                      <span className="text-gray-600">Monthly Spending</span>
-                      <span className="font-semibold text-gray-900">
-                        {formatCurrency(metrics.monthlySpent)}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </Card>
-
-              {/* Active Caregivers */}
-              {bookingsData?.data && bookingsData.data.length > 0 && (
+                {/* Quick Stats */}
                 <Card>
                   <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                    Active Caregivers
+                    Quick Stats
                   </h3>
-                  <div className="space-y-3">
-                    {Array.from(
-                      new Set(
-                        ((bookingsData?.data) || [])
-                          .filter((b) => b && b.caregiverId && b.status !== 'cancelled')
-                          .map((b) => {
-                            if (typeof b.caregiverId === 'object' && b.caregiverId !== null) {
-                              const caregiver = b.caregiverId as any;
-                              const user = caregiver.userId || caregiver;
-                              return typeof user === 'object' ? user.name : 'Unknown';
-                            }
-                            return 'Unknown';
-                          })
-                      )
-                    )
-                      .slice(0, 3)
-                      .map((name, idx) => (
-                        <div key={idx} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                          <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center">
-                            <span className="text-primary-700 font-semibold text-sm">
-                              {name.charAt(0).toUpperCase()}
-                            </span>
-                          </div>
-                          <div className="flex-1">
-                            <p className="font-semibold text-gray-900 text-sm">{name}</p>
-                            <p className="text-xs text-gray-600">Active Caregiver</p>
-                          </div>
-                        </div>
-                      ))}
+                  <div className="space-y-4">
+                    <div>
+                      <div className="flex justify-between text-sm mb-1">
+                        <span className="text-gray-600">Total Bookings</span>
+                        <span className="font-semibold text-gray-900">
+                          {metrics.totalBookings}
+                        </span>
+                      </div>
+                    </div>
+                    <div>
+                      <div className="flex justify-between text-sm mb-1">
+                        <span className="text-gray-600">Monthly Spending</span>
+                        <span className="font-semibold text-gray-900">
+                          {formatCurrency(metrics.monthlySpent)}
+                        </span>
+                      </div>
+                    </div>
                   </div>
                 </Card>
-              )}
 
-              {/* Quick Actions */}
-              <QuickActions />
+                {/* Active Caregivers */}
+                {bookingsData?.data && bookingsData.data.length > 0 && (
+                  <Card>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                      Active Caregivers
+                    </h3>
+                    <div className="space-y-3">
+                      {Array.from(
+                        new Set(
+                          ((bookingsData?.data) || [])
+                            .filter((b) => b && b.caregiverId && b.status !== 'cancelled')
+                            .map((b) => {
+                              if (typeof b.caregiverId === 'object' && b.caregiverId !== null) {
+                                const caregiver = b.caregiverId as any;
+                                const user = caregiver.userId || caregiver;
+                                return typeof user === 'object' ? user.name : 'Unknown';
+                              }
+                              return 'Unknown';
+                            })
+                        )
+                      )
+                        .slice(0, 3)
+                        .map((name, idx) => (
+                          <div key={idx} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                            <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center">
+                              <span className="text-primary-700 font-semibold text-sm">
+                                {name.charAt(0).toUpperCase()}
+                              </span>
+                            </div>
+                            <div className="flex-1">
+                              <p className="font-semibold text-gray-900 text-sm">{name}</p>
+                              <p className="text-xs text-gray-600">Active Caregiver</p>
+                            </div>
+                          </div>
+                        ))}
+                    </div>
+                  </Card>
+                )}
+
+                {/* Quick Actions */}
+                <QuickActions />
+              </div>
             </div>
           </div>
         )}

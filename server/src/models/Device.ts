@@ -68,3 +68,4 @@ deviceSchema.index({ name: 'text', description: 'text' }); // Text search index
 
 export const Device = mongoose.model<IDevice>('Device', deviceSchema);
 
+

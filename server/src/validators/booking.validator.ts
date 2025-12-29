@@ -23,3 +23,4 @@ export const getBookingsQuerySchema = z.object({
   limit: z.string().regex(/^\d+$/).transform(Number).optional(),
 });
 
+

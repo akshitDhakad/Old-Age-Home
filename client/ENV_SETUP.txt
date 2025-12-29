@@ -24,3 +24,4 @@ VITE_ENV=development
 3. Use `.env.example` as a template for other developers
 4. In production, set these via your hosting platform's environment variable settings
 
+
