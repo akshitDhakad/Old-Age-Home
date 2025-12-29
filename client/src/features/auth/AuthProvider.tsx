@@ -1,11 +1,20 @@
 /**
  * Authentication Context Provider
- * Manages user authentication state and provides auth methods with token refresh
+ * Enhanced with session persistence, expiration handling, and optimized state management
  */
 
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
-import { getCurrentUser, logout as logoutService, login as loginService, register as registerService } from '../../services/auth';
+import { getCurrentUser, logout as logoutService, login as loginService, register as registerService, refreshToken } from '../../services/auth';
+import {
+  getCachedUser,
+  cacheUser,
+  clearAuthTokens,
+  isAuthenticated,
+  shouldRefreshToken,
+  updateLastActivity,
+  initializeAuthStorage,
+} from '../../utils/authStorage';
 import type { User } from '../../types';
 import type { LoginCredentials, RegisterCredentials } from '../../services/auth';
 
@@ -22,43 +31,163 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [isInitialized, setIsInitialized] = useState(false);
   const queryClient = useQueryClient();
+  const refreshIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const activityIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Check if user is authenticated on mount
-  const token = localStorage.getItem('auth_token');
-  const { data: currentUser, isLoading, error } = useQuery({
+  // Initialize auth storage on mount
+  useEffect(() => {
+    initializeAuthStorage();
+    
+    // Load cached user immediately for instant UI
+    const cachedUser = getCachedUser();
+    if (cachedUser) {
+      setUser(cachedUser);
+    }
+    
+    setIsInitialized(true);
+  }, []);
+
+  // Check authentication status
+  const isAuth = isAuthenticated();
+  
+  // Fetch current user from API if authenticated
+  const { data: currentUser, isLoading, error, refetch } = useQuery({
     queryKey: ['auth', 'me'],
-    queryFn: getCurrentUser,
-    enabled: !!token,
+    queryFn: () => getCurrentUser(false), // Use cached data first
+    enabled: isAuth && isInitialized,
     retry: false,
     staleTime: 5 * 60 * 1000, // 5 minutes
     refetchOnWindowFocus: false,
+    refetchOnMount: false, // Don't refetch on mount if we have cached data
   });
 
-  // Handle authentication errors
-  useEffect(() => {
-    if (error && !token) {
-      setUser(null);
-    }
-  }, [error, token]);
-
+  // Update user state when currentUser changes
   useEffect(() => {
     if (currentUser) {
       setUser(currentUser);
-    } else if (!token) {
-      setUser(null);
+      cacheUser(currentUser);
     }
-  }, [currentUser, token]);
+  }, [currentUser]);
+
+  // Handle authentication errors
+  useEffect(() => {
+    if (error && !isAuth) {
+      setUser(null);
+      clearAuthTokens();
+    }
+  }, [error, isAuth]);
+
+  // Set up token refresh interval
+  useEffect(() => {
+    if (!isAuth) {
+      // Clear intervals if not authenticated
+      if (refreshIntervalRef.current) {
+        clearInterval(refreshIntervalRef.current);
+        refreshIntervalRef.current = null;
+      }
+      return;
+    }
+
+    // Check if token needs refresh and set up interval
+    const checkAndRefreshToken = async () => {
+      if (shouldRefreshToken()) {
+        try {
+          await refreshToken();
+          // Refetch user data after token refresh
+          await refetch();
+        } catch (error) {
+          console.error('Token refresh failed:', error);
+          setUser(null);
+          clearAuthTokens();
+        }
+      }
+    };
+
+    // Check immediately
+    checkAndRefreshToken();
+
+    // Set up interval to check every 5 minutes
+    refreshIntervalRef.current = setInterval(checkAndRefreshToken, 5 * 60 * 1000);
+
+    return () => {
+      if (refreshIntervalRef.current) {
+        clearInterval(refreshIntervalRef.current);
+      }
+    };
+  }, [isAuth, refetch]);
+
+  // Track user activity
+  useEffect(() => {
+    if (!isAuth) {
+      if (activityIntervalRef.current) {
+        clearInterval(activityIntervalRef.current);
+        activityIntervalRef.current = null;
+      }
+      return;
+    }
+
+    // Update activity on user interactions
+    const updateActivity = () => {
+      updateLastActivity();
+    };
+
+    // Listen to user activity events
+    const events = ['mousedown', 'keydown', 'scroll', 'touchstart'];
+    events.forEach((event) => {
+      window.addEventListener(event, updateActivity, { passive: true });
+    });
+
+    // Update activity every minute
+    activityIntervalRef.current = setInterval(updateActivity, 60 * 1000);
+
+    return () => {
+      events.forEach((event) => {
+        window.removeEventListener(event, updateActivity);
+      });
+      if (activityIntervalRef.current) {
+        clearInterval(activityIntervalRef.current);
+      }
+    };
+  }, [isAuth]);
+
+  // Handle page visibility (refresh token when tab becomes visible)
+  useEffect(() => {
+    const handleVisibilityChange = async () => {
+      if (document.visibilityState === 'visible' && isAuth) {
+        // Check if token needs refresh
+        if (shouldRefreshToken()) {
+          try {
+            await refreshToken();
+            await refetch();
+          } catch (error) {
+            console.error('Token refresh on visibility change failed:', error);
+          }
+        }
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [isAuth, refetch]);
 
   // Login mutation
   const loginMutation = useMutation({
     mutationFn: loginService,
     onSuccess: (data) => {
       setUser(data.user);
+      cacheUser(data.user);
       queryClient.setQueryData(['auth', 'me'], data.user);
+      // Invalidate queries to refresh data
+      queryClient.invalidateQueries();
     },
     onError: (error) => {
       console.error('Login error:', error);
+      setUser(null);
+      clearAuthTokens();
       throw error;
     },
   });
@@ -68,10 +197,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     mutationFn: registerService,
     onSuccess: (data) => {
       setUser(data.user);
+      cacheUser(data.user);
       queryClient.setQueryData(['auth', 'me'], data.user);
+      queryClient.invalidateQueries();
     },
     onError: (error) => {
       console.error('Register error:', error);
+      setUser(null);
+      clearAuthTokens();
       throw error;
     },
   });
@@ -81,12 +214,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     mutationFn: logoutService,
     onSuccess: () => {
       setUser(null);
+      clearAuthTokens();
       queryClient.clear();
+      // Clear intervals
+      if (refreshIntervalRef.current) {
+        clearInterval(refreshIntervalRef.current);
+        refreshIntervalRef.current = null;
+      }
+      if (activityIntervalRef.current) {
+        clearInterval(activityIntervalRef.current);
+        activityIntervalRef.current = null;
+      }
     },
     onError: (error) => {
       console.error('Logout error:', error);
       // Clear anyway
       setUser(null);
+      clearAuthTokens();
       queryClient.clear();
     },
   });
@@ -107,8 +251,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const value: AuthContextType = {
     user,
-    isLoading: isLoading || loginMutation.isPending || registerMutation.isPending,
-    isAuthenticated: !!user,
+    isLoading: !isInitialized || isLoading || loginMutation.isPending || registerMutation.isPending,
+    isAuthenticated: !!user && isAuth,
     login,
     register,
     logout,

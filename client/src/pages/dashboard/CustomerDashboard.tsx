@@ -22,6 +22,7 @@ import {
   ProfileSection,
   QuickActions,
   UpcomingSchedule,
+  EmergencyRequest,
 } from '../../components';
 import { HealthGraph } from '../../components/HealthGraph';
 import {
@@ -41,6 +42,7 @@ export function CustomerDashboard() {
   const [activeTab, setActiveTab] = useState<
     'overview' | 'health' | 'caregivers' | 'schedule'
   >('overview');
+  const [isEmergencyModalOpen, setIsEmergencyModalOpen] = useState(false);
   const debouncedCity = useDebounce(searchCity, 500);
 
   // Fetch bookings
@@ -74,14 +76,14 @@ export function CustomerDashboard() {
     const bookings = bookingsData?.data || [];
     const now = new Date();
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    
+
     // Active care hours this month
     const monthlyBookings = bookings.filter((b) => {
       if (!b || !b.startTime) return false;
       const bookingDate = parseISO(b.startTime);
       return bookingDate >= startOfMonth && b.status !== 'cancelled';
     });
-    
+
     const activeHours = monthlyBookings.reduce((total, booking) => {
       if (booking.endTime) {
         const start = parseISO(booking.startTime);
@@ -90,31 +92,41 @@ export function CustomerDashboard() {
       }
       return total + 1; // Default 1 hour if no end time
     }, 0);
-    
+
     // Next appointment
     const upcomingBookings = bookings
       .filter((b) => {
         if (!b || !b.startTime) return false;
         const bookingDate = parseISO(b.startTime);
-        return bookingDate >= now && ['requested', 'confirmed'].includes(b.status);
+        return (
+          bookingDate >= now && ['requested', 'confirmed'].includes(b.status)
+        );
       })
-      .sort((a, b) => parseISO(a.startTime).getTime() - parseISO(b.startTime).getTime());
-    
+      .sort(
+        (a, b) =>
+          parseISO(a.startTime).getTime() - parseISO(b.startTime).getTime()
+      );
+
     const nextAppointment = upcomingBookings[0] || null;
-    
+
     // Today's bookings
     const todayBookings = bookings.filter((b) => {
       if (!b || !b.startTime) return false;
       const bookingDate = parseISO(b.startTime);
       return isToday(bookingDate) && b.status !== 'cancelled';
     });
-    
+
     // Completed bookings
-    const completedBookings = bookings.filter((b) => b && b.status === 'completed');
-    
+    const completedBookings = bookings.filter(
+      (b) => b && b.status === 'completed'
+    );
+
     // Total spent this month
-    const monthlySpent = monthlyBookings.reduce((total, b) => total + (b.priceCents || 0), 0);
-    
+    const monthlySpent = monthlyBookings.reduce(
+      (total, b) => total + (b.priceCents || 0),
+      0
+    );
+
     return {
       activeHours: activeHours.toFixed(1),
       nextAppointment,
@@ -147,8 +159,18 @@ export function CustomerDashboard() {
       id: 'overview',
       label: 'Overview',
       icon: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+        <svg
+          className="w-5 h-5"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+          />
         </svg>
       ),
       onClick: () => setActiveTab('overview'),
@@ -158,8 +180,18 @@ export function CustomerDashboard() {
       id: 'health',
       label: 'Health Monitoring',
       icon: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+        <svg
+          className="w-5 h-5"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+          />
         </svg>
       ),
       onClick: () => setActiveTab('health'),
@@ -169,8 +201,18 @@ export function CustomerDashboard() {
       id: 'caregivers',
       label: 'Find Caregivers',
       icon: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        <svg
+          className="w-5 h-5"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+          />
         </svg>
       ),
       onClick: () => setActiveTab('caregivers'),
@@ -180,8 +222,18 @@ export function CustomerDashboard() {
       id: 'schedule',
       label: 'Care Schedule',
       icon: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        <svg
+          className="w-5 h-5"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+          />
         </svg>
       ),
       onClick: () => setActiveTab('schedule'),
@@ -191,11 +243,22 @@ export function CustomerDashboard() {
       id: 'emergency',
       label: 'Emergency Request',
       icon: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+        <svg
+          className="w-5 h-5"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+          />
         </svg>
       ),
-      path: '/bookings/new',
+      onClick: () => setIsEmergencyModalOpen(true),
+      active: false,
     },
   ];
 
@@ -218,8 +281,12 @@ export function CustomerDashboard() {
                       <p className="text-primary-100 text-sm font-medium">
                         Active Care Hours
                       </p>
-                      <p className="text-3xl font-bold mt-2">{metrics.activeHours}</p>
-                      <p className="text-primary-100 text-xs mt-1">This month</p>
+                      <p className="text-3xl font-bold mt-2">
+                        {metrics.activeHours}
+                      </p>
+                      <p className="text-primary-100 text-xs mt-1">
+                        This month
+                      </p>
                     </div>
                     <div className="bg-white/20 p-3 rounded-lg">
                       <svg
@@ -243,8 +310,12 @@ export function CustomerDashboard() {
                       <p className="text-green-100 text-sm font-medium">
                         Completed Sessions
                       </p>
-                      <p className="text-3xl font-bold mt-2">{metrics.completedBookings}</p>
-                      <p className="text-green-100 text-xs mt-1">Total bookings</p>
+                      <p className="text-3xl font-bold mt-2">
+                        {metrics.completedBookings}
+                      </p>
+                      <p className="text-green-100 text-xs mt-1">
+                        Total bookings
+                      </p>
                     </div>
                     <div className="bg-white/20 p-3 rounded-lg">
                       <svg
@@ -280,7 +351,9 @@ export function CustomerDashboard() {
                       ) : (
                         <>
                           <p className="text-2xl font-bold mt-2">None</p>
-                          <p className="text-blue-100 text-xs mt-1">No upcoming bookings</p>
+                          <p className="text-blue-100 text-xs mt-1">
+                            No upcoming bookings
+                          </p>
                         </>
                       )}
                     </div>
@@ -317,9 +390,12 @@ export function CustomerDashboard() {
                   <div className="flex justify-center p-8">
                     <Spinner />
                   </div>
-                ) : !metrics.todayBookings || metrics.todayBookings.length === 0 ? (
+                ) : !metrics.todayBookings ||
+                  metrics.todayBookings.length === 0 ? (
                   <div className="text-center py-8">
-                    <p className="text-gray-600">No bookings scheduled for today</p>
+                    <p className="text-gray-600">
+                      No bookings scheduled for today
+                    </p>
                     <Link to="/bookings/new">
                       <Button size="sm" className="mt-4">
                         Schedule Appointment
@@ -338,12 +414,13 @@ export function CustomerDashboard() {
                         completed: 'bg-gray-50 border-gray-200',
                         cancelled: 'bg-red-50 border-red-200',
                       };
-                      
+
                       return (
                         <div
                           key={bookingId}
                           className={`flex gap-4 p-4 rounded-lg border ${
-                            statusColors[booking.status] || 'bg-gray-50 border-gray-200'
+                            statusColors[booking.status] ||
+                            'bg-gray-50 border-gray-200'
                           }`}
                         >
                           <div className="text-center min-w-[60px]">
@@ -362,13 +439,19 @@ export function CustomerDashboard() {
                               {booking.address}
                             </p>
                             <div className="flex items-center gap-2 mt-2">
-                              <span className={`text-xs px-2 py-1 rounded font-medium ${
-                                booking.status === 'confirmed' ? 'bg-blue-100 text-blue-700' :
-                                booking.status === 'in_progress' ? 'bg-green-100 text-green-700' :
-                                booking.status === 'completed' ? 'bg-gray-100 text-gray-700' :
-                                booking.status === 'cancelled' ? 'bg-red-100 text-red-700' :
-                                'bg-yellow-100 text-yellow-700'
-                              }`}>
+                              <span
+                                className={`text-xs px-2 py-1 rounded font-medium ${
+                                  booking.status === 'confirmed'
+                                    ? 'bg-blue-100 text-blue-700'
+                                    : booking.status === 'in_progress'
+                                      ? 'bg-green-100 text-green-700'
+                                      : booking.status === 'completed'
+                                        ? 'bg-gray-100 text-gray-700'
+                                        : booking.status === 'cancelled'
+                                          ? 'bg-red-100 text-red-700'
+                                          : 'bg-yellow-100 text-yellow-700'
+                                }`}
+                              >
                                 {booking.status.replace('_', ' ').toUpperCase()}
                               </span>
                               {booking.priceCents > 0 && (
@@ -419,18 +502,26 @@ export function CustomerDashboard() {
                           key={bookingId}
                           className="flex items-start gap-3 pb-3 border-b border-gray-100 last:border-0"
                         >
-                          <div className={`p-2 rounded-lg ${
-                            booking.status === 'completed' ? 'bg-green-100' :
-                            booking.status === 'cancelled' ? 'bg-red-100' :
-                            booking.status === 'in_progress' ? 'bg-blue-100' :
-                            'bg-yellow-100'
-                          }`}>
+                          <div
+                            className={`p-2 rounded-lg ${
+                              booking.status === 'completed'
+                                ? 'bg-green-100'
+                                : booking.status === 'cancelled'
+                                  ? 'bg-red-100'
+                                  : booking.status === 'in_progress'
+                                    ? 'bg-blue-100'
+                                    : 'bg-yellow-100'
+                            }`}
+                          >
                             <svg
                               className={`w-5 h-5 ${
-                                booking.status === 'completed' ? 'text-green-600' :
-                                booking.status === 'cancelled' ? 'text-red-600' :
-                                booking.status === 'in_progress' ? 'text-blue-600' :
-                                'text-yellow-600'
+                                booking.status === 'completed'
+                                  ? 'text-green-600'
+                                  : booking.status === 'cancelled'
+                                    ? 'text-red-600'
+                                    : booking.status === 'in_progress'
+                                      ? 'text-blue-600'
+                                      : 'text-yellow-600'
                               }`}
                               fill="currentColor"
                               viewBox="0 0 20 20"
@@ -447,7 +538,8 @@ export function CustomerDashboard() {
                               Booking #{bookingId.slice(0, 8)}
                             </p>
                             <p className="text-sm text-gray-600">
-                              {formatDateTime(booking.startTime)} • {booking.address}
+                              {formatDateTime(booking.startTime)} •{' '}
+                              {booking.address}
                             </p>
                             <p className="text-xs text-gray-500 mt-1">
                               {getRelativeTime(booking.createdAt)}
@@ -509,13 +601,21 @@ export function CustomerDashboard() {
                     <div className="space-y-3">
                       {Array.from(
                         new Set(
-                          ((bookingsData?.data) || [])
-                            .filter((b) => b && b.caregiverId && b.status !== 'cancelled')
+                          (bookingsData?.data || [])
+                            .filter(
+                              (b) =>
+                                b && b.caregiverId && b.status !== 'cancelled'
+                            )
                             .map((b) => {
-                              if (typeof b.caregiverId === 'object' && b.caregiverId !== null) {
+                              if (
+                                typeof b.caregiverId === 'object' &&
+                                b.caregiverId !== null
+                              ) {
                                 const caregiver = b.caregiverId as any;
                                 const user = caregiver.userId || caregiver;
-                                return typeof user === 'object' ? user.name : 'Unknown';
+                                return typeof user === 'object'
+                                  ? user.name
+                                  : 'Unknown';
                               }
                               return 'Unknown';
                             })
@@ -523,15 +623,22 @@ export function CustomerDashboard() {
                       )
                         .slice(0, 3)
                         .map((name, idx) => (
-                          <div key={idx} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                          <div
+                            key={idx}
+                            className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg"
+                          >
                             <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center">
                               <span className="text-primary-700 font-semibold text-sm">
                                 {name.charAt(0).toUpperCase()}
                               </span>
                             </div>
                             <div className="flex-1">
-                              <p className="font-semibold text-gray-900 text-sm">{name}</p>
-                              <p className="text-xs text-gray-600">Active Caregiver</p>
+                              <p className="font-semibold text-gray-900 text-sm">
+                                {name}
+                              </p>
+                              <p className="text-xs text-gray-600">
+                                Active Caregiver
+                              </p>
                             </div>
                           </div>
                         ))}
@@ -561,10 +668,13 @@ export function CustomerDashboard() {
                     <Card className="bg-gradient-to-br from-red-500 to-red-600 text-white border-none shadow-lg">
                       <p className="text-red-100 text-sm">Blood Pressure</p>
                       <p className="text-3xl font-bold mt-2">
-                        {vitals.find((v) => v.type === 'blood_pressure')?.value || 'N/A'}
+                        {vitals.find((v) => v.type === 'blood_pressure')
+                          ?.value || 'N/A'}
                       </p>
                       <p className="text-red-100 text-xs mt-1">
-                        {vitals.find((v) => v.type === 'blood_pressure')?.unit || 'mmHg'} • Normal
+                        {vitals.find((v) => v.type === 'blood_pressure')
+                          ?.unit || 'mmHg'}{' '}
+                        • Normal
                       </p>
                     </Card>
                   )}
@@ -572,10 +682,13 @@ export function CustomerDashboard() {
                     <Card className="bg-gradient-to-br from-pink-500 to-pink-600 text-white border-none shadow-lg">
                       <p className="text-pink-100 text-sm">Heart Rate</p>
                       <p className="text-3xl font-bold mt-2">
-                        {vitals.find((v) => v.type === 'heart_rate')?.value || 'N/A'}
+                        {vitals.find((v) => v.type === 'heart_rate')?.value ||
+                          'N/A'}
                       </p>
                       <p className="text-pink-100 text-xs mt-1">
-                        {vitals.find((v) => v.type === 'heart_rate')?.unit || 'bpm'} • Healthy
+                        {vitals.find((v) => v.type === 'heart_rate')?.unit ||
+                          'bpm'}{' '}
+                        • Healthy
                       </p>
                     </Card>
                   )}
@@ -583,10 +696,13 @@ export function CustomerDashboard() {
                     <Card className="bg-gradient-to-br from-blue-500 to-blue-600 text-white border-none shadow-lg">
                       <p className="text-blue-100 text-sm">Blood Sugar</p>
                       <p className="text-3xl font-bold mt-2">
-                        {vitals.find((v) => v.type === 'blood_sugar')?.value || 'N/A'}
+                        {vitals.find((v) => v.type === 'blood_sugar')?.value ||
+                          'N/A'}
                       </p>
                       <p className="text-blue-100 text-xs mt-1">
-                        {vitals.find((v) => v.type === 'blood_sugar')?.unit || 'mg/dL'} • Normal
+                        {vitals.find((v) => v.type === 'blood_sugar')?.unit ||
+                          'mg/dL'}{' '}
+                        • Normal
                       </p>
                     </Card>
                   )}
@@ -594,10 +710,13 @@ export function CustomerDashboard() {
                     <Card className="bg-gradient-to-br from-purple-500 to-purple-600 text-white border-none shadow-lg">
                       <p className="text-purple-100 text-sm">Temperature</p>
                       <p className="text-3xl font-bold mt-2">
-                        {vitals.find((v) => v.type === 'temperature')?.value || 'N/A'}
+                        {vitals.find((v) => v.type === 'temperature')?.value ||
+                          'N/A'}
                       </p>
                       <p className="text-purple-100 text-xs mt-1">
-                        {vitals.find((v) => v.type === 'temperature')?.unit || '°F'} • Normal Range
+                        {vitals.find((v) => v.type === 'temperature')?.unit ||
+                          '°F'}{' '}
+                        • Normal Range
                       </p>
                     </Card>
                   )}
@@ -614,20 +733,29 @@ export function CustomerDashboard() {
                     <h3 className="text-lg font-semibold text-gray-900">
                       Blood Pressure Trend (7 Days)
                     </h3>
-                    <span className={`text-sm font-medium ${
-                      bpTrend.trend === 'improving' ? 'text-green-600' :
-                      bpTrend.trend === 'declining' ? 'text-red-600' :
-                      'text-blue-600'
-                    }`}>
-                      {bpTrend.trend === 'improving' ? '↓ Improving' :
-                       bpTrend.trend === 'declining' ? '↑ Declining' :
-                       '→ Stable'}
+                    <span
+                      className={`text-sm font-medium ${
+                        bpTrend.trend === 'improving'
+                          ? 'text-green-600'
+                          : bpTrend.trend === 'declining'
+                            ? 'text-red-600'
+                            : 'text-blue-600'
+                      }`}
+                    >
+                      {bpTrend.trend === 'improving'
+                        ? '↓ Improving'
+                        : bpTrend.trend === 'declining'
+                          ? '↑ Declining'
+                          : '→ Stable'}
                     </span>
                   </div>
                   <HealthGraph trend={bpTrend} color="red" height={200} />
                   <div className="mt-4 text-center">
                     <p className="text-sm text-gray-600">
-                      Average: <span className="font-semibold text-gray-900">{bpTrend.average} mmHg</span>
+                      Average:{' '}
+                      <span className="font-semibold text-gray-900">
+                        {bpTrend.average} mmHg
+                      </span>
                     </p>
                   </div>
                 </Card>
@@ -640,20 +768,29 @@ export function CustomerDashboard() {
                     <h3 className="text-lg font-semibold text-gray-900">
                       Heart Rate Trend (7 Days)
                     </h3>
-                    <span className={`text-sm font-medium ${
-                      hrTrend.trend === 'improving' ? 'text-green-600' :
-                      hrTrend.trend === 'declining' ? 'text-red-600' :
-                      'text-blue-600'
-                    }`}>
-                      {hrTrend.trend === 'improving' ? '↓ Improving' :
-                       hrTrend.trend === 'declining' ? '↑ Declining' :
-                       '→ Stable'}
+                    <span
+                      className={`text-sm font-medium ${
+                        hrTrend.trend === 'improving'
+                          ? 'text-green-600'
+                          : hrTrend.trend === 'declining'
+                            ? 'text-red-600'
+                            : 'text-blue-600'
+                      }`}
+                    >
+                      {hrTrend.trend === 'improving'
+                        ? '↓ Improving'
+                        : hrTrend.trend === 'declining'
+                          ? '↑ Declining'
+                          : '→ Stable'}
                     </span>
                   </div>
                   <HealthGraph trend={hrTrend} color="blue" height={200} />
                   <div className="mt-4 text-center">
                     <p className="text-sm text-gray-600">
-                      Average: <span className="font-semibold text-gray-900">{hrTrend.average} bpm</span>
+                      Average:{' '}
+                      <span className="font-semibold text-gray-900">
+                        {hrTrend.average} bpm
+                      </span>
                     </p>
                   </div>
                 </Card>
@@ -666,20 +803,29 @@ export function CustomerDashboard() {
                     <h3 className="text-lg font-semibold text-gray-900">
                       Blood Sugar Trend (7 Days)
                     </h3>
-                    <span className={`text-sm font-medium ${
-                      bsTrend.trend === 'improving' ? 'text-green-600' :
-                      bsTrend.trend === 'declining' ? 'text-red-600' :
-                      'text-blue-600'
-                    }`}>
-                      {bsTrend.trend === 'improving' ? '↓ Improving' :
-                       bsTrend.trend === 'declining' ? '↑ Declining' :
-                       '→ Stable'}
+                    <span
+                      className={`text-sm font-medium ${
+                        bsTrend.trend === 'improving'
+                          ? 'text-green-600'
+                          : bsTrend.trend === 'declining'
+                            ? 'text-red-600'
+                            : 'text-blue-600'
+                      }`}
+                    >
+                      {bsTrend.trend === 'improving'
+                        ? '↓ Improving'
+                        : bsTrend.trend === 'declining'
+                          ? '↑ Declining'
+                          : '→ Stable'}
                     </span>
                   </div>
                   <HealthGraph trend={bsTrend} color="green" height={200} />
                   <div className="mt-4 text-center">
                     <p className="text-sm text-gray-600">
-                      Average: <span className="font-semibold text-gray-900">{bsTrend.average} mg/dL</span>
+                      Average:{' '}
+                      <span className="font-semibold text-gray-900">
+                        {bsTrend.average} mg/dL
+                      </span>
                     </p>
                   </div>
                 </Card>
@@ -692,20 +838,29 @@ export function CustomerDashboard() {
                     <h3 className="text-lg font-semibold text-gray-900">
                       Temperature Trend (7 Days)
                     </h3>
-                    <span className={`text-sm font-medium ${
-                      tempTrend.trend === 'improving' ? 'text-green-600' :
-                      tempTrend.trend === 'declining' ? 'text-red-600' :
-                      'text-blue-600'
-                    }`}>
-                      {tempTrend.trend === 'improving' ? '↓ Improving' :
-                       tempTrend.trend === 'declining' ? '↑ Declining' :
-                       '→ Stable'}
+                    <span
+                      className={`text-sm font-medium ${
+                        tempTrend.trend === 'improving'
+                          ? 'text-green-600'
+                          : tempTrend.trend === 'declining'
+                            ? 'text-red-600'
+                            : 'text-blue-600'
+                      }`}
+                    >
+                      {tempTrend.trend === 'improving'
+                        ? '↓ Improving'
+                        : tempTrend.trend === 'declining'
+                          ? '↑ Declining'
+                          : '→ Stable'}
                     </span>
                   </div>
                   <HealthGraph trend={tempTrend} color="purple" height={200} />
                   <div className="mt-4 text-center">
                     <p className="text-sm text-gray-600">
-                      Average: <span className="font-semibold text-gray-900">{tempTrend.average}°F</span>
+                      Average:{' '}
+                      <span className="font-semibold text-gray-900">
+                        {tempTrend.average}°F
+                      </span>
                     </p>
                   </div>
                 </Card>
@@ -749,7 +904,9 @@ export function CustomerDashboard() {
                 </div>
               ) : !caregiversData?.data || caregiversData.data.length === 0 ? (
                 <div className="text-center py-8">
-                  <p className="text-gray-600">No caregivers found. Try adjusting your search filters.</p>
+                  <p className="text-gray-600">
+                    No caregivers found. Try adjusting your search filters.
+                  </p>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -757,8 +914,13 @@ export function CustomerDashboard() {
                     const caregiverId = (caregiver as any)._id || caregiver.id;
                     const caregiverUser = getCaregiverUser(caregiver);
                     const caregiverName = getCaregiverName(caregiver);
-                    const initials = caregiverName.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2);
-                    
+                    const initials = caregiverName
+                      .split(' ')
+                      .map((n: string) => n[0])
+                      .join('')
+                      .toUpperCase()
+                      .slice(0, 2);
+
                     return (
                       <div
                         key={caregiverId}
@@ -811,7 +973,9 @@ export function CustomerDashboard() {
                                 </span>
                               )}
                             </div>
-                            <Link to={`/bookings/new?caregiverId=${caregiverId}`}>
+                            <Link
+                              to={`/bookings/new?caregiverId=${caregiverId}`}
+                            >
                               <Button size="sm" className="mt-3 w-full">
                                 Book Now
                               </Button>
@@ -834,6 +998,12 @@ export function CustomerDashboard() {
           </div>
         )}
       </div>
+
+      {/* Emergency Request Modal */}
+      <EmergencyRequest
+        isOpen={isEmergencyModalOpen}
+        onClose={() => setIsEmergencyModalOpen(false)}
+      />
     </DashboardLayout>
   );
 }

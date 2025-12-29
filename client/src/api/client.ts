@@ -1,10 +1,13 @@
 /**
  * Typed API client wrapper
  * Uses fetch with proper error handling, type safety, and token refresh
+ * Enhanced with session persistence and expiration handling
  *
  * NOTE: In production, use httpOnly cookies for JWT tokens instead of localStorage
  * This requires backend support for SameSite cookie attributes
  */
+
+import { getAuthToken as getToken, getRefreshToken as getRefresh, setAuthTokens, clearAuthTokens } from '../utils/authStorage';
 
 const BASE_URL = import.meta.env.VITE_API_BASE || 'http://localhost:4000';
 const API_VERSION = '/api/v1';
@@ -49,35 +52,18 @@ export class ApiClientError extends Error {
 }
 
 /**
- * Get auth token from localStorage
+ * Get auth token from storage
+ * Uses authStorage utility for consistent token management
  */
 function getAuthToken(): string | null {
-  return localStorage.getItem('auth_token');
+  return getToken();
 }
 
 /**
- * Get refresh token from localStorage
+ * Get refresh token from storage
  */
 function getRefreshToken(): string | null {
-  return localStorage.getItem('refresh_token');
-}
-
-/**
- * Store tokens in localStorage
- */
-function setTokens(token: string, refreshToken?: string): void {
-  localStorage.setItem('auth_token', token);
-  if (refreshToken) {
-    localStorage.setItem('refresh_token', refreshToken);
-  }
-}
-
-/**
- * Clear tokens from localStorage
- */
-function clearTokens(): void {
-  localStorage.removeItem('auth_token');
-  localStorage.removeItem('refresh_token');
+  return getRefresh();
 }
 
 /**
@@ -99,20 +85,21 @@ async function refreshAccessToken(): Promise<string | null> {
     });
 
     if (!response.ok) {
-      clearTokens();
+      clearAuthTokens();
       return null;
     }
 
     const result = await response.json();
     if (result.success && result.data?.token) {
-      setTokens(result.data.token, refreshToken);
+      const expiresIn = 7 * 24 * 60 * 60 * 1000; // 7 days
+      setAuthTokens(result.data.token, refreshToken, expiresIn);
       return result.data.token;
     }
 
     return null;
   } catch (error) {
     console.error('Token refresh failed:', error);
-    clearTokens();
+    clearAuthTokens();
     return null;
   }
 }
@@ -156,7 +143,7 @@ export async function apiFetch<T>(
       });
     } else {
       // Refresh failed, clear tokens and throw error
-      clearTokens();
+      clearAuthTokens();
       throw new ApiClientError('Session expired. Please login again.', 401);
     }
   }
@@ -271,5 +258,6 @@ export function apiDelete<T>(path: string, opts?: RequestInit): Promise<T> {
   return apiFetch<T>(path, { ...opts, method: 'DELETE' });
 }
 
-// Export token management functions for use in auth service
-export { setTokens, clearTokens, getAuthToken };
+// Token management is now handled by authStorage utility
+// Export getAuthToken for backward compatibility
+export { getAuthToken };
